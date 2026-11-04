@@ -17,9 +17,11 @@ Designed with a sleek **terminal monospace aesthetic** matching [WhatsBB](https:
   - `E` — Open Exercise Library
   - `H` — Open History Log
   - `N` — Create New Plan / Exercise
-- **Exercise Library**:
-  - Pre-seeded with common compound and isolation exercises across chest, back, shoulders, legs, arms, and core.
-  - Add custom exercises with target muscle groups and form notes.
+- **100% Custom Exercise Creation (No Forced Predefined List)**:
+  - You write your own exercises! No cluttered pre-seeded lists.
+  - When building or editing a plan, tap `[+ exercise]` and directly type the name of whatever exercise you want.
+  - Type-ahead auto-complete lets you quickly pick from your previously entered exercises.
+  - Manage, view, and organize all your custom exercises in the Exercise Library.
 - **Plan Builder & Day Scheduling**:
   - Group workouts into named routines (e.g. *Push Day*, *Pull Day*, *Legs*, *Upper/Lower*).
   - Assign to specific days of the week (`Mon` `Tue` `Wed` `Thu` `Fri` `Sat` `Sun`).

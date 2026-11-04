@@ -62,28 +62,60 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Exercise picker label -->
+            <!-- Exercise name input -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="exercise"
+                android:text="exercise name"
                 android:textColor="#555A64"
                 android:textSize="11sp"
                 android:typeface="monospace"
                 android:layout_marginBottom="4dp"/>
 
-            <Spinner
-                android:id="@+id/spinnerExercise"
+            <AutoCompleteTextView
+                android:id="@+id/etExerciseName"
                 android:layout_width="match_parent"
-                android:layout_height="44dp"
+                android:layout_height="wrap_content"
+                android:textColor="#E0E2E6"
+                android:textColorHint="#555A64"
+                android:hint="e.g. bench press, pull-ups..."
+                android:textSize="15sp"
+                android:typeface="monospace"
                 android:background="#1A1C20"
-                android:padding="8dp"/>
+                android:padding="10dp"
+                android:inputType="textCapSentences"
+                android:singleLine="true"/>
+
+            <!-- Muscle group input (optional) -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="muscle group (optional)"
+                android:textColor="#555A64"
+                android:textSize="11sp"
+                android:typeface="monospace"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="4dp"/>
+
+            <EditText
+                android:id="@+id/etMuscleGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#E0E2E6"
+                android:textColorHint="#555A64"
+                android:hint="e.g. chest, back, legs..."
+                android:textSize="14sp"
+                android:typeface="monospace"
+                android:background="#1A1C20"
+                android:padding="10dp"
+                android:inputType="textCapSentences"
+                android:singleLine="true"/>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#1E2126"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginBottom="12dp"/>
 
             <!-- Sets -->
@@ -150,7 +182,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="weight (kg)"
+                android:text="weight in kg (0 for bodyweight)"
                 android:textColor="#555A64"
                 android:textSize="11sp"
                 android:typeface="monospace"
@@ -180,7 +212,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="rest (seconds)"
+                android:text="rest in seconds"
                 android:textColor="#555A64"
                 android:textSize="11sp"
                 android:typeface="monospace"

@@ -12,7 +12,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "gymbb.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     // Table names
     static final String TABLE_EXERCISES = "exercises";
@@ -65,47 +65,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "reps INTEGER," +
                 "weight REAL," +
                 "completed INTEGER DEFAULT 0)");
-
-        // Seed a few exercises
-        seedExercises(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSION_SETS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSIONS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAN_EXERCISES);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLANS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXERCISES);
-        onCreate(db);
-    }
-
-    private void seedExercises(SQLiteDatabase db) {
-        String[][] defaults = {
-                {"Bench Press", "chest"},
-                {"Incline Dumbbell Press", "chest"},
-                {"Push-Up", "chest"},
-                {"Pull-Up", "back"},
-                {"Barbell Row", "back"},
-                {"Lat Pulldown", "back"},
-                {"Overhead Press", "shoulders"},
-                {"Lateral Raise", "shoulders"},
-                {"Squat", "legs"},
-                {"Deadlift", "legs"},
-                {"Leg Press", "legs"},
-                {"Lunge", "legs"},
-                {"Bicep Curl", "biceps"},
-                {"Hammer Curl", "biceps"},
-                {"Tricep Dip", "triceps"},
-                {"Skull Crusher", "triceps"},
-                {"Plank", "core"},
-                {"Crunch", "core"},
-        };
-        for (String[] ex : defaults) {
-            ContentValues cv = new ContentValues();
-            cv.put("name", ex[0]);
-            cv.put("muscle_group", ex[1]);
-            db.insert(TABLE_EXERCISES, null, cv);
+        if (oldVersion < 2) {
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSION_SETS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSIONS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLAN_EXERCISES);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLANS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXERCISES);
+            onCreate(db);
         }
     }
 
@@ -114,16 +84,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public long insertExercise(String name, String muscleGroup, String notes) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put("name", name);
-        cv.put("muscle_group", muscleGroup);
-        cv.put("notes", notes);
+        cv.put("name", name.trim());
+        cv.put("muscle_group", muscleGroup != null ? muscleGroup.trim().toLowerCase() : "");
+        cv.put("notes", notes != null ? notes.trim() : "");
+        return db.insert(TABLE_EXERCISES, null, cv);
+    }
+
+    public long getOrCreateExercise(String name, String muscleGroup) {
+        String trimmed = name.trim();
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = db.query(TABLE_EXERCISES, new String[]{"id"}, "LOWER(name)=?",
+                new String[]{trimmed.toLowerCase()}, null, null, null);
+        if (c.moveToFirst()) {
+            long id = c.getLong(0);
+            c.close();
+            return id;
+        }
+        c.close();
+
+        ContentValues cv = new ContentValues();
+        cv.put("name", trimmed);
+        cv.put("muscle_group", muscleGroup != null ? muscleGroup.trim().toLowerCase() : "");
+        cv.put("notes", "");
         return db.insert(TABLE_EXERCISES, null, cv);
     }
 
     public List<Exercise> getAllExercises() {
         List<Exercise> list = new ArrayList<Exercise>();
         SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.query(TABLE_EXERCISES, null, null, null, null, null, "muscle_group ASC, name ASC");
+        Cursor c = db.query(TABLE_EXERCISES, null, null, null, null, null, "name ASC");
         while (c.moveToNext()) {
             Exercise e = new Exercise();
             e.id = c.getLong(c.getColumnIndex("id"));
@@ -146,7 +135,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public long insertPlan(String name, String days) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put("name", name);
+        cv.put("name", name.trim());
         cv.put("days", days);
         return db.insert(TABLE_PLANS, null, cv);
     }
@@ -191,7 +180,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public long insertPlanExercise(long planId, long exerciseId, int sets, int reps, double weight, int restSec) {
         SQLiteDatabase db = getWritableDatabase();
-        // get next sort order
         Cursor c = db.rawQuery("SELECT MAX(sort_order) FROM " + TABLE_PLAN_EXERCISES + " WHERE plan_id=?",
                 new String[]{String.valueOf(planId)});
         int sortOrder = 0;
