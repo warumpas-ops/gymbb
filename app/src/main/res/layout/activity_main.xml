@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_main.xml — Home screen -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0D0F11">
+
+    <!-- Header bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:background="#0D0F11">
+
+        <TextView
+            android:id="@+id/tvAppTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="gymbb"
+            android:textColor="#A8D8A8"
+            android:textSize="18sp"
+            android:typeface="monospace"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#555A64"
+            android:textSize="12sp"
+            android:typeface="monospace"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1E2126"/>
+
+    <!-- Today section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp">
+
+        <TextView
+            android:id="@+id/tvDayLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#555A64"
+            android:textSize="11sp"
+            android:typeface="monospace"
+            android:text="today"/>
+
+        <TextView
+            android:id="@+id/tvDayName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#E0E2E6"
+            android:textSize="22sp"
+            android:typeface="monospace"
+            android:textStyle="bold"
+            android:layout_marginTop="4dp"/>
+
+        <TextView
+            android:id="@+id/tvPlanName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#A8D8A8"
+            android:textSize="14sp"
+            android:typeface="monospace"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/tvPlanExercises"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#555A64"
+            android:textSize="12sp"
+            android:typeface="monospace"
+            android:layout_marginTop="4dp"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/tvStartWorkout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[start workout]"
+            android:textColor="#A8D8A8"
+            android:textSize="15sp"
+            android:typeface="monospace"
+            android:layout_marginTop="24dp"
+            android:padding="8dp"
+            android:background="@drawable/btn_accent"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/tvRestDay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-- rest day --"
+            android:textColor="#555A64"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"/>
+    </LinearLayout>
+
+    <!-- Bottom nav bar -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1E2126"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:background="#0D0F11">
+
+        <TextView
+            android:id="@+id/navPlans"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="[plans]"
+            android:textColor="#555A64"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:gravity="center"
+            android:background="@drawable/row_selector"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#1E2126"/>
+
+        <TextView
+            android:id="@+id/navExercises"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="[exercises]"
+            android:textColor="#555A64"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:gravity="center"
+            android:background="@drawable/row_selector"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#1E2126"/>
+
+        <TextView
+            android:id="@+id/navHistory"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="[history]"
+            android:textColor="#555A64"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:gravity="center"
+            android:background="@drawable/row_selector"/>
+    </LinearLayout>
+</LinearLayout>

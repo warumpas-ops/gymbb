@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.gymbb.app"
+    android:versionCode="1"
+    android:versionName="1.0.0">
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="18" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.NoTitleBar">
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:configChanges="orientation|keyboardHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".PlansActivity"
+            android:label="Plans"
+            android:configChanges="orientation|keyboardHidden" />
+
+        <activity
+            android:name=".PlanDetailActivity"
+            android:label="Plan"
+            android:configChanges="orientation|keyboardHidden" />
+
+        <activity
+            android:name=".NewPlanActivity"
+            android:label="New Plan"
+            android:configChanges="orientation|keyboardHidden" />
+
+        <activity
+            android:name=".AddExerciseToPlanActivity"
+            android:label="Add Exercise"
+            android:configChanges="orientation|keyboardHidden" />
+
+        <activity
+            android:name=".ExerciseLibraryActivity"
+            android:label="Exercises"
+            android:configChanges="orientation|keyboardHidden" />
+
+        <activity
+            android:name=".NewExerciseActivity"
+            android:label="New Exercise"
+            android:configChanges="orientation|keyboardHidden" />
+
+        <activity
+            android:name=".WorkoutActivity"
+            android:label="Workout"
+            android:configChanges="orientation|keyboardHidden" />
+
+        <activity
+            android:name=".HistoryActivity"
+            android:label="History"
+            android:configChanges="orientation|keyboardHidden" />
+
+    </application>
+</manifest>

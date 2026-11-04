@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_workout.xml — Active workout screen -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0D0F11">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <TextView
+            android:id="@+id/tvQuit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[quit]"
+            android:textColor="#EF4444"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:padding="4dp"/>
+
+        <TextView
+            android:id="@+id/tvPlanName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#E0E2E6"
+            android:textSize="14sp"
+            android:typeface="monospace"
+            android:gravity="center"
+            android:singleLine="true"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/tvTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#555A64"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:text="00:00"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1E2126"/>
+
+    <!-- Progress bar text -->
+    <TextView
+        android:id="@+id/tvProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#555A64"
+        android:textSize="11sp"
+        android:typeface="monospace"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="exercise 1 / 5"/>
+
+    <!-- Main workout card — takes up most space -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp">
+
+        <!-- Exercise name -->
+        <TextView
+            android:id="@+id/tvExerciseName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#A8D8A8"
+            android:textSize="20sp"
+            android:typeface="monospace"
+            android:textStyle="bold"
+            android:gravity="center"/>
+
+        <!-- Set counter -->
+        <TextView
+            android:id="@+id/tvSetCounter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#555A64"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Target -->
+        <TextView
+            android:id="@+id/tvTarget"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#E0E2E6"
+            android:textSize="28sp"
+            android:typeface="monospace"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/tvTargetSub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#555A64"
+            android:textSize="12sp"
+            android:typeface="monospace"
+            android:layout_marginTop="4dp"/>
+
+        <!-- Rest timer (shown between sets) -->
+        <LinearLayout
+            android:id="@+id/layoutRest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-- rest --"
+                android:textColor="#555A64"
+                android:textSize="12sp"
+                android:typeface="monospace"/>
+
+            <TextView
+                android:id="@+id/tvRestTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#A8D8A8"
+                android:textSize="36sp"
+                android:typeface="monospace"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1E2126"/>
+
+    <!-- Bottom action buttons -->
+    <LinearLayout
+        android:id="@+id/layoutActions"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:background="#0D0F11">
+
+        <TextView
+            android:id="@+id/tvSkip"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="[skip]"
+            android:textColor="#555A64"
+            android:textSize="15sp"
+            android:typeface="monospace"
+            android:gravity="center"
+            android:background="@drawable/row_selector"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#1E2126"/>
+
+        <TextView
+            android:id="@+id/tvDone"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:text="[✓ done]"
+            android:textColor="#A8D8A8"
+            android:textSize="17sp"
+            android:typeface="monospace"
+            android:gravity="center"
+            android:background="@drawable/row_selector"/>
+    </LinearLayout>
+
+    <!-- Workout complete overlay (gone by default) -->
+    <LinearLayout
+        android:id="@+id/layoutComplete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="24dp"
+        android:background="#0D0F11"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-- workout complete --"
+            android:textColor="#A8D8A8"
+            android:textSize="16sp"
+            android:typeface="monospace"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/tvCompleteSummary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#555A64"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:gravity="center"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/tvFinish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[finish]"
+            android:textColor="#A8D8A8"
+            android:textSize="15sp"
+            android:typeface="monospace"
+            android:padding="12dp"
+            android:background="@drawable/btn_accent"
+            android:layout_marginTop="20dp"/>
+    </LinearLayout>
+</LinearLayout>

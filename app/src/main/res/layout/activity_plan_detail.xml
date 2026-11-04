@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_plan_detail.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0D0F11">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <TextView
+            android:id="@+id/tvBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[back]"
+            android:textColor="#555A64"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:padding="4dp"/>
+
+        <TextView
+            android:id="@+id/tvPlanName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#E0E2E6"
+            android:textSize="16sp"
+            android:typeface="monospace"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:singleLine="true"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/tvDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[del]"
+            android:textColor="#EF4444"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:padding="4dp"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1E2126"/>
+
+    <!-- Days strip -->
+    <LinearLayout
+        android:id="@+id/layoutDays"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1E2126"/>
+
+    <!-- Exercise list -->
+    <ListView
+        android:id="@+id/lvExercises"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="#1E2126"
+        android:dividerHeight="1dp"
+        android:scrollbars="none"
+        android:background="#0D0F11"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1E2126"/>
+
+    <!-- Bottom actions -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:background="#0D0F11">
+
+        <TextView
+            android:id="@+id/tvAddExercise"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="[+ exercise]"
+            android:textColor="#555A64"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:gravity="center"
+            android:background="@drawable/row_selector"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#1E2126"/>
+
+        <TextView
+            android:id="@+id/tvStartWorkout"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="[start workout]"
+            android:textColor="#A8D8A8"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:gravity="center"
+            android:background="@drawable/row_selector"/>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_new_plan.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0D0F11">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <TextView
+            android:id="@+id/tvCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[cancel]"
+            android:textColor="#555A64"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:padding="4dp"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="new plan"
+            android:textColor="#E0E2E6"
+            android:textSize="16sp"
+            android:typeface="monospace"
+            android:textStyle="bold"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/tvSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[save]"
+            android:textColor="#A8D8A8"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:padding="4dp"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1E2126"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="plan name"
+                android:textColor="#555A64"
+                android:textSize="11sp"
+                android:typeface="monospace"
+                android:layout_marginBottom="4dp"/>
+
+            <EditText
+                android:id="@+id/etPlanName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#E0E2E6"
+                android:textColorHint="#555A64"
+                android:hint="e.g. push day"
+                android:textSize="15sp"
+                android:typeface="monospace"
+                android:background="#1A1C20"
+                android:padding="10dp"
+                android:inputType="text"
+                android:singleLine="true"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#1E2126"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="12dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="training days"
+                android:textColor="#555A64"
+                android:textSize="11sp"
+                android:typeface="monospace"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Day checkboxes row 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <CheckBox
+                    android:id="@+id/cbMon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="mon"
+                    android:textColor="#E0E2E6"
+                    android:textSize="12sp"
+                    android:typeface="monospace"/>
+
+                <CheckBox
+                    android:id="@+id/cbTue"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="tue"
+                    android:textColor="#E0E2E6"
+                    android:textSize="12sp"
+                    android:typeface="monospace"/>
+
+                <CheckBox
+                    android:id="@+id/cbWed"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="wed"
+                    android:textColor="#E0E2E6"
+                    android:textSize="12sp"
+                    android:typeface="monospace"/>
+
+                <CheckBox
+                    android:id="@+id/cbThu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="thu"
+                    android:textColor="#E0E2E6"
+                    android:textSize="12sp"
+                    android:typeface="monospace"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/cbFri"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="fri"
+                    android:textColor="#E0E2E6"
+                    android:textSize="12sp"
+                    android:typeface="monospace"/>
+
+                <CheckBox
+                    android:id="@+id/cbSat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="sat"
+                    android:textColor="#E0E2E6"
+                    android:textSize="12sp"
+                    android:typeface="monospace"/>
+
+                <CheckBox
+                    android:id="@+id/cbSun"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="sun"
+                    android:textColor="#E0E2E6"
+                    android:textSize="12sp"
+                    android:typeface="monospace"/>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

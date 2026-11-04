@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_plans.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0D0F11">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <TextView
+            android:id="@+id/tvBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[back]"
+            android:textColor="#555A64"
+            android:textSize="13sp"
+            android:typeface="monospace"
+            android:padding="4dp"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="plans"
+            android:textColor="#E0E2E6"
+            android:textSize="16sp"
+            android:typeface="monospace"
+            android:textStyle="bold"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/tvNewPlan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[+]"
+            android:textColor="#A8D8A8"
+            android:textSize="16sp"
+            android:typeface="monospace"
+            android:padding="4dp"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#1E2126"/>
+
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="no plans yet. press [+] to create one."
+        android:textColor="#555A64"
+        android:textSize="13sp"
+        android:typeface="monospace"
+        android:padding="24dp"
+        android:gravity="center"
+        android:visibility="gone"/>
+
+    <ListView
+        android:id="@+id/lvPlans"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="#1E2126"
+        android:dividerHeight="1dp"
+        android:scrollbars="none"
+        android:background="#0D0F11"/>
+</LinearLayout>
