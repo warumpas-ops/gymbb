@@ -25,6 +25,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         db = new DatabaseHelper(this);
+        db.ensureDefaultsSeeded();
 
         tvDayName = (TextView) findViewById(R.id.tvDayName);
         tvPlanName = (TextView) findViewById(R.id.tvPlanName);

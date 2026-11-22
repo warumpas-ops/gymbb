@@ -68,6 +68,61 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "weight REAL," +
                 "completed INTEGER DEFAULT 0," +
                 "is_stretch INTEGER DEFAULT 0)");
+
+        seedExercises(db);
+    }
+
+    private void seedExercises(SQLiteDatabase db) {
+        String[][] defaults = {
+                {"Bench Press", "chest", "0"},
+                {"Incline Dumbbell Press", "chest", "0"},
+                {"Push-Up", "chest", "0"},
+                {"Pull-Up", "back", "0"},
+                {"Barbell Row", "back", "0"},
+                {"Lat Pulldown", "back", "0"},
+                {"Overhead Press", "shoulders", "0"},
+                {"Lateral Raise", "shoulders", "0"},
+                {"Squat", "legs", "0"},
+                {"Deadlift", "legs", "0"},
+                {"Leg Press", "legs", "0"},
+                {"Lunge", "legs", "0"},
+                {"Bicep Curl", "biceps", "0"},
+                {"Hammer Curl", "biceps", "0"},
+                {"Tricep Dip", "triceps", "0"},
+                {"Skull Crusher", "triceps", "0"},
+                {"Plank", "core", "0"},
+                {"Crunch", "core", "0"},
+                // Built-in starter stretches
+                {"Hamstring Stretch", "legs", "1"},
+                {"Quad Stretch", "legs", "1"},
+                {"Calf Stretch", "legs", "1"},
+                {"Hip Flexor Stretch", "legs", "1"},
+                {"Shoulder Stretch", "shoulders", "1"},
+                {"Chest Opener Stretch", "chest", "1"},
+                {"Cobra Stretch", "back", "1"},
+                {"Child's Pose", "back", "1"}
+        };
+        for (String[] ex : defaults) {
+            ContentValues cv = new ContentValues();
+            cv.put("name", ex[0]);
+            cv.put("muscle_group", ex[1]);
+            cv.put("notes", "");
+            cv.put("is_stretch", Integer.parseInt(ex[2]));
+            db.insertWithOnConflict(TABLE_EXERCISES, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+        }
+    }
+
+    public void ensureDefaultsSeeded() {
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_EXERCISES, null);
+        boolean isEmpty = true;
+        if (c.moveToFirst()) {
+            isEmpty = c.getInt(0) == 0;
+        }
+        c.close();
+        if (isEmpty) {
+            seedExercises(db);
+        }
     }
 
     @Override

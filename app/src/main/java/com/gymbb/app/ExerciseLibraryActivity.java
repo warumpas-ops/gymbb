@@ -45,6 +45,7 @@ public class ExerciseLibraryActivity extends Activity {
     }
 
     private void loadExercises() {
+        db.ensureDefaultsSeeded();
         exercises = db.getAllExercises();
         if (exercises.isEmpty()) {
             tvEmpty.setVisibility(View.VISIBLE);
