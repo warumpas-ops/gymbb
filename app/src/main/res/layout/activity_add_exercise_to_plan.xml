@@ -26,6 +26,7 @@
             android:padding="4dp"/>
 
         <TextView
+            android:id="@+id/tvTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -150,6 +151,7 @@
 
             <!-- Reps -->
             <TextView
+                android:id="@+id/tvRepsLabel"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="reps"
@@ -171,35 +173,43 @@
                 android:inputType="number"
                 android:singleLine="true"/>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#1E2126"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="12dp"/>
-
-            <!-- Weight -->
-            <TextView
+            <!-- Weight (hidden for stretches) -->
+            <LinearLayout
+                android:id="@+id/layoutWeightSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="weight in kg (0 for bodyweight)"
-                android:textColor="#555A64"
-                android:textSize="11sp"
-                android:typeface="monospace"
-                android:layout_marginBottom="4dp"/>
+                android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/etWeight"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="#E0E2E6"
-                android:text="0"
-                android:textSize="15sp"
-                android:typeface="monospace"
-                android:background="#1A1C20"
-                android:padding="10dp"
-                android:inputType="numberDecimal"
-                android:singleLine="true"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#1E2126"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="12dp"/>
+
+                <TextView
+                    android:id="@+id/tvWeightLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="weight in kg (0 for bodyweight)"
+                    android:textColor="#555A64"
+                    android:textSize="11sp"
+                    android:typeface="monospace"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/etWeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#E0E2E6"
+                    android:text="0"
+                    android:textSize="15sp"
+                    android:typeface="monospace"
+                    android:background="#1A1C20"
+                    android:padding="10dp"
+                    android:inputType="numberDecimal"
+                    android:singleLine="true"/>
+            </LinearLayout>
 
             <View
                 android:layout_width="match_parent"

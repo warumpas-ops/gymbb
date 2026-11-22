@@ -57,9 +57,10 @@ public class ExerciseLibraryActivity extends Activity {
                 public View getView(final int position, View convertView, ViewGroup parent) {
                     View v = super.getView(position, convertView, parent);
                     final Exercise e = exercises.get(position);
-                    ((TextView) v.findViewById(R.id.tvExerciseName)).setText(e.name);
-                    String muscle = e.muscleGroup != null ? e.muscleGroup : "";
-                    ((TextView) v.findViewById(R.id.tvMuscleGroup)).setText(muscle);
+                    String prefix = e.isStretch ? "[stretch] " : "";
+                    ((TextView) v.findViewById(R.id.tvExerciseName)).setText(prefix + e.name);
+                    String muscle = e.muscleGroup != null && !e.muscleGroup.isEmpty() ? e.muscleGroup : (e.isStretch ? "mobility" : "general");
+                    ((TextView) v.findViewById(R.id.tvMuscleGroup)).setText(muscle + "  ·  [view progression]");
                     v.findViewById(R.id.tvDelete).setOnClickListener(new View.OnClickListener() {
                         public void onClick(View view) {
                             db.deleteExercise(e.id);
@@ -72,6 +73,16 @@ public class ExerciseLibraryActivity extends Activity {
                         }
                     });
                     return v;
+                }
+            });
+
+            lvExercises.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                    Exercise e = exercises.get(position);
+                    Intent intent = new Intent(ExerciseLibraryActivity.this, ExerciseHistoryActivity.class);
+                    intent.putExtra("exercise_id", e.id);
+                    startActivity(intent);
                 }
             });
         }

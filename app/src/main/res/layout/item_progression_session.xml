@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- item_progression_session.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:id="@+id/tvSessionDatePlan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#A8D8A8"
+        android:textSize="13sp"
+        android:typeface="monospace"
+        android:textStyle="bold"
+        android:text="Sun 22 Nov · Push Day"/>
+
+    <TextView
+        android:id="@+id/tvSetsBreakdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#E0E2E6"
+        android:textSize="12sp"
+        android:typeface="monospace"
+        android:layout_marginTop="4dp"
+        android:text="10x60.0kg  ·  10x65.0kg  ·  8x65.0kg"/>
+</LinearLayout>

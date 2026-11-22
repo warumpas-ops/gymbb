@@ -9,6 +9,9 @@ public class SessionSet {
     public int reps;
     public double weight;
     public int completed;
+    public boolean isStretch;
+    public long dateMs;
+    public String planName;
 
     public SessionSet() {}
 }

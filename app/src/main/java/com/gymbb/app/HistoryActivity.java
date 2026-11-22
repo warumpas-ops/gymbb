@@ -75,5 +75,15 @@ public class HistoryActivity extends Activity {
                 return convertView;
             }
         });
+
+        lvHistory.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                WorkoutSession s = sessions.get(position);
+                android.content.Intent intent = new android.content.Intent(HistoryActivity.this, SessionDetailActivity.class);
+                intent.putExtra("session_id", s.id);
+                startActivity(intent);
+            }
+        });
     }
 }

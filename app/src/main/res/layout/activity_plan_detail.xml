@@ -96,9 +96,26 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="[+ exercise]"
+            android:text="[+ lift]"
             android:textColor="#555A64"
-            android:textSize="13sp"
+            android:textSize="12sp"
+            android:typeface="monospace"
+            android:gravity="center"
+            android:background="@drawable/row_selector"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="#1E2126"/>
+
+        <TextView
+            android:id="@+id/tvAddStretch"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="[+ stretch]"
+            android:textColor="#A8D8A8"
+            android:textSize="12sp"
             android:typeface="monospace"
             android:gravity="center"
             android:background="@drawable/row_selector"/>
@@ -112,11 +129,12 @@
             android:id="@+id/tvStartWorkout"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="[start workout]"
+            android:layout_weight="1.2"
+            android:text="[start]"
             android:textColor="#A8D8A8"
             android:textSize="13sp"
             android:typeface="monospace"
+            android:textStyle="bold"
             android:gravity="center"
             android:background="@drawable/row_selector"/>
     </LinearLayout>

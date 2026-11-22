@@ -49,6 +49,16 @@ public class PlanDetailActivity extends Activity {
             public void onClick(View v) {
                 Intent i = new Intent(PlanDetailActivity.this, AddExerciseToPlanActivity.class);
                 i.putExtra("plan_id", planId);
+                i.putExtra("is_stretch", false);
+                startActivity(i);
+            }
+        });
+
+        ((TextView) findViewById(R.id.tvAddStretch)).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent i = new Intent(PlanDetailActivity.this, AddExerciseToPlanActivity.class);
+                i.putExtra("plan_id", planId);
+                i.putExtra("is_stretch", true);
                 startActivity(i);
             }
         });
@@ -105,7 +115,8 @@ public class PlanDetailActivity extends Activity {
             public View getView(final int position, View convertView, ViewGroup parent) {
                 View v = super.getView(position, convertView, parent);
                 final PlanExercise pe = exercises.get(position);
-                ((TextView) v.findViewById(R.id.tvExerciseName)).setText(pe.exerciseName);
+                String prefix = pe.isStretch ? "[stretch] " : "";
+                ((TextView) v.findViewById(R.id.tvExerciseName)).setText(prefix + pe.exerciseName);
                 ((TextView) v.findViewById(R.id.tvExerciseDetail)).setText(pe.getDetailText());
                 v.findViewById(R.id.tvDelete).setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {

@@ -11,10 +11,14 @@ public class PlanExercise {
     public double weight;
     public int restSeconds;
     public int sortOrder;
+    public boolean isStretch;
 
     public PlanExercise() {}
 
     public String getDetailText() {
+        if (isStretch) {
+            return sets + "x" + reps + "s hold  " + restSeconds + "s rest";
+        }
         String w = weight > 0
                 ? String.format("%.1fkg", weight)
                 : "bw";

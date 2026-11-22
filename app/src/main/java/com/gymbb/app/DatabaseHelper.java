@@ -12,7 +12,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "gymbb.db";
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
 
     // Table names
     static final String TABLE_EXERCISES = "exercises";
@@ -31,7 +31,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "name TEXT NOT NULL," +
                 "muscle_group TEXT," +
-                "notes TEXT)");
+                "notes TEXT," +
+                "is_stretch INTEGER DEFAULT 0)");
 
         db.execSQL("CREATE TABLE " + TABLE_PLANS + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -46,7 +47,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "reps INTEGER DEFAULT 10," +
                 "weight REAL DEFAULT 0," +
                 "rest_seconds INTEGER DEFAULT 60," +
-                "sort_order INTEGER DEFAULT 0)");
+                "sort_order INTEGER DEFAULT 0," +
+                "is_stretch INTEGER DEFAULT 0)");
 
         db.execSQL("CREATE TABLE " + TABLE_SESSIONS + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -64,7 +66,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "set_number INTEGER," +
                 "reps INTEGER," +
                 "weight REAL," +
-                "completed INTEGER DEFAULT 0)");
+                "completed INTEGER DEFAULT 0," +
+                "is_stretch INTEGER DEFAULT 0)");
     }
 
     @Override
@@ -76,24 +79,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_PLANS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXERCISES);
             onCreate(db);
+            return;
+        }
+        if (oldVersion < 3) {
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_EXERCISES + " ADD COLUMN is_stretch INTEGER DEFAULT 0");
+            } catch (Exception e) {}
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_PLAN_EXERCISES + " ADD COLUMN is_stretch INTEGER DEFAULT 0");
+            } catch (Exception e) {}
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_SESSION_SETS + " ADD COLUMN is_stretch INTEGER DEFAULT 0");
+            } catch (Exception e) {}
         }
     }
 
     // ==================== EXERCISES ====================
 
-    public long insertExercise(String name, String muscleGroup, String notes) {
+    public long insertExercise(String name, String muscleGroup, String notes, boolean isStretch) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("name", name.trim());
         cv.put("muscle_group", muscleGroup != null ? muscleGroup.trim().toLowerCase() : "");
         cv.put("notes", notes != null ? notes.trim() : "");
+        cv.put("is_stretch", isStretch ? 1 : 0);
         return db.insert(TABLE_EXERCISES, null, cv);
     }
 
-    public long getOrCreateExercise(String name, String muscleGroup) {
+    public long insertExercise(String name, String muscleGroup, String notes) {
+        return insertExercise(name, muscleGroup, notes, false);
+    }
+
+    public long getOrCreateExercise(String name, String muscleGroup, boolean isStretch) {
         String trimmed = name.trim();
         SQLiteDatabase db = getWritableDatabase();
-        Cursor c = db.query(TABLE_EXERCISES, new String[]{"id"}, "LOWER(name)=?",
+        Cursor c = db.query(TABLE_EXERCISES, new String[]{"id", "is_stretch"}, "LOWER(name)=?",
                 new String[]{trimmed.toLowerCase()}, null, null, null);
         if (c.moveToFirst()) {
             long id = c.getLong(0);
@@ -106,19 +126,44 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put("name", trimmed);
         cv.put("muscle_group", muscleGroup != null ? muscleGroup.trim().toLowerCase() : "");
         cv.put("notes", "");
+        cv.put("is_stretch", isStretch ? 1 : 0);
         return db.insert(TABLE_EXERCISES, null, cv);
+    }
+
+    public long getOrCreateExercise(String name, String muscleGroup) {
+        return getOrCreateExercise(name, muscleGroup, false);
+    }
+
+    public Exercise getExerciseById(long id) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query(TABLE_EXERCISES, null, "id=?", new String[]{String.valueOf(id)}, null, null, null);
+        if (c.moveToFirst()) {
+            Exercise e = new Exercise();
+            e.id = c.getLong(c.getColumnIndex("id"));
+            e.name = c.getString(c.getColumnIndex("name"));
+            e.muscleGroup = c.getString(c.getColumnIndex("muscle_group"));
+            e.notes = c.getString(c.getColumnIndex("notes"));
+            int isStrIdx = c.getColumnIndex("is_stretch");
+            e.isStretch = (isStrIdx >= 0 && c.getInt(isStrIdx) == 1);
+            c.close();
+            return e;
+        }
+        c.close();
+        return null;
     }
 
     public List<Exercise> getAllExercises() {
         List<Exercise> list = new ArrayList<Exercise>();
         SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.query(TABLE_EXERCISES, null, null, null, null, null, "name ASC");
+        Cursor c = db.query(TABLE_EXERCISES, null, null, null, null, null, "is_stretch ASC, name ASC");
         while (c.moveToNext()) {
             Exercise e = new Exercise();
             e.id = c.getLong(c.getColumnIndex("id"));
             e.name = c.getString(c.getColumnIndex("name"));
             e.muscleGroup = c.getString(c.getColumnIndex("muscle_group"));
             e.notes = c.getString(c.getColumnIndex("notes"));
+            int isStrIdx = c.getColumnIndex("is_stretch");
+            e.isStretch = (isStrIdx >= 0 && c.getInt(isStrIdx) == 1);
             list.add(e);
         }
         c.close();
@@ -178,7 +223,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // ==================== PLAN EXERCISES ====================
 
-    public long insertPlanExercise(long planId, long exerciseId, int sets, int reps, double weight, int restSec) {
+    public long insertPlanExercise(long planId, long exerciseId, int sets, int reps, double weight, int restSec, boolean isStretch) {
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = db.rawQuery("SELECT MAX(sort_order) FROM " + TABLE_PLAN_EXERCISES + " WHERE plan_id=?",
                 new String[]{String.valueOf(planId)});
@@ -194,13 +239,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put("weight", weight);
         cv.put("rest_seconds", restSec);
         cv.put("sort_order", sortOrder);
+        cv.put("is_stretch", isStretch ? 1 : 0);
         return db.insert(TABLE_PLAN_EXERCISES, null, cv);
+    }
+
+    public long insertPlanExercise(long planId, long exerciseId, int sets, int reps, double weight, int restSec) {
+        return insertPlanExercise(planId, exerciseId, sets, reps, weight, restSec, false);
     }
 
     public List<PlanExercise> getPlanExercises(long planId) {
         List<PlanExercise> list = new ArrayList<PlanExercise>();
         SQLiteDatabase db = getReadableDatabase();
-        String sql = "SELECT pe.*, e.name AS ex_name, e.muscle_group " +
+        String sql = "SELECT pe.*, e.name AS ex_name, e.muscle_group, e.is_stretch AS e_is_stretch " +
                 "FROM " + TABLE_PLAN_EXERCISES + " pe " +
                 "JOIN " + TABLE_EXERCISES + " e ON pe.exercise_id = e.id " +
                 "WHERE pe.plan_id=? ORDER BY pe.sort_order ASC";
@@ -217,6 +267,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             pe.weight = c.getDouble(c.getColumnIndex("weight"));
             pe.restSeconds = c.getInt(c.getColumnIndex("rest_seconds"));
             pe.sortOrder = c.getInt(c.getColumnIndex("sort_order"));
+            int peStrIdx = c.getColumnIndex("is_stretch");
+            int eStrIdx = c.getColumnIndex("e_is_stretch");
+            pe.isStretch = (peStrIdx >= 0 && c.getInt(peStrIdx) == 1) ||
+                           (eStrIdx >= 0 && c.getInt(eStrIdx) == 1);
             list.add(pe);
         }
         c.close();
@@ -266,10 +320,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list;
     }
 
+    public WorkoutSession getSessionById(long id) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query(TABLE_SESSIONS, null, "id=?", new String[]{String.valueOf(id)}, null, null, null);
+        if (c.moveToFirst()) {
+            WorkoutSession s = new WorkoutSession();
+            s.id = c.getLong(c.getColumnIndex("id"));
+            s.planId = c.getLong(c.getColumnIndex("plan_id"));
+            s.planName = c.getString(c.getColumnIndex("plan_name"));
+            s.dateMs = c.getLong(c.getColumnIndex("date_ms"));
+            s.durationSeconds = c.getInt(c.getColumnIndex("duration_seconds"));
+            s.completed = c.getInt(c.getColumnIndex("completed"));
+            c.close();
+            return s;
+        }
+        c.close();
+        return null;
+    }
+
     // ==================== SESSION SETS ====================
 
     public long insertSessionSet(long sessionId, long exerciseId, String exerciseName,
-                                  int setNumber, int reps, double weight) {
+                                  int setNumber, int reps, double weight, boolean isStretch) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("session_id", sessionId);
@@ -279,7 +351,95 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put("reps", reps);
         cv.put("weight", weight);
         cv.put("completed", 1);
+        cv.put("is_stretch", isStretch ? 1 : 0);
         return db.insert(TABLE_SESSION_SETS, null, cv);
+    }
+
+    public long insertSessionSet(long sessionId, long exerciseId, String exerciseName,
+                                  int setNumber, int reps, double weight) {
+        return insertSessionSet(sessionId, exerciseId, exerciseName, setNumber, reps, weight, false);
+    }
+
+    public List<SessionSet> getSessionSets(long sessionId) {
+        List<SessionSet> list = new ArrayList<SessionSet>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query(TABLE_SESSION_SETS, null, "session_id=?",
+                new String[]{String.valueOf(sessionId)}, null, null, "id ASC");
+        while (c.moveToNext()) {
+            SessionSet s = new SessionSet();
+            s.id = c.getLong(c.getColumnIndex("id"));
+            s.sessionId = sessionId;
+            s.exerciseId = c.getLong(c.getColumnIndex("exercise_id"));
+            s.exerciseName = c.getString(c.getColumnIndex("exercise_name"));
+            s.setNumber = c.getInt(c.getColumnIndex("set_number"));
+            s.reps = c.getInt(c.getColumnIndex("reps"));
+            s.weight = c.getDouble(c.getColumnIndex("weight"));
+            s.completed = c.getInt(c.getColumnIndex("completed"));
+            int strIdx = c.getColumnIndex("is_stretch");
+            s.isStretch = (strIdx >= 0 && c.getInt(strIdx) == 1);
+            list.add(s);
+        }
+        c.close();
+        return list;
+    }
+
+    public List<SessionSet> getExerciseHistory(long exerciseId) {
+        List<SessionSet> list = new ArrayList<SessionSet>();
+        SQLiteDatabase db = getReadableDatabase();
+        String sql = "SELECT ss.*, s.date_ms, s.plan_name " +
+                "FROM " + TABLE_SESSION_SETS + " ss " +
+                "JOIN " + TABLE_SESSIONS + " s ON ss.session_id = s.id " +
+                "WHERE ss.exercise_id=? AND ss.completed=1 " +
+                "ORDER BY s.date_ms DESC, ss.set_number ASC";
+        Cursor c = db.rawQuery(sql, new String[]{String.valueOf(exerciseId)});
+        while (c.moveToNext()) {
+            SessionSet s = new SessionSet();
+            s.id = c.getLong(c.getColumnIndex("id"));
+            s.sessionId = c.getLong(c.getColumnIndex("session_id"));
+            s.exerciseId = exerciseId;
+            s.exerciseName = c.getString(c.getColumnIndex("exercise_name"));
+            s.setNumber = c.getInt(c.getColumnIndex("set_number"));
+            s.reps = c.getInt(c.getColumnIndex("reps"));
+            s.weight = c.getDouble(c.getColumnIndex("weight"));
+            s.completed = c.getInt(c.getColumnIndex("completed"));
+            int strIdx = c.getColumnIndex("is_stretch");
+            s.isStretch = (strIdx >= 0 && c.getInt(strIdx) == 1);
+            s.dateMs = c.getLong(c.getColumnIndex("date_ms"));
+            s.planName = c.getString(c.getColumnIndex("plan_name"));
+            list.add(s);
+        }
+        c.close();
+        return list;
+    }
+
+    public double getExerciseMaxWeight(long exerciseId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT MAX(weight) FROM " + TABLE_SESSION_SETS +
+                " WHERE exercise_id=? AND completed=1", new String[]{String.valueOf(exerciseId)});
+        double max = 0;
+        if (c.moveToFirst() && !c.isNull(0)) max = c.getDouble(0);
+        c.close();
+        return max;
+    }
+
+    public int getExerciseMaxHold(long exerciseId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT MAX(reps) FROM " + TABLE_SESSION_SETS +
+                " WHERE exercise_id=? AND completed=1 AND is_stretch=1", new String[]{String.valueOf(exerciseId)});
+        int max = 0;
+        if (c.moveToFirst() && !c.isNull(0)) max = c.getInt(0);
+        c.close();
+        return max;
+    }
+
+    public int getExerciseTotalSessions(long exerciseId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT COUNT(DISTINCT session_id) FROM " + TABLE_SESSION_SETS +
+                " WHERE exercise_id=? AND completed=1", new String[]{String.valueOf(exerciseId)});
+        int count = 0;
+        if (c.moveToFirst()) count = c.getInt(0);
+        c.close();
+        return count;
     }
 
     public int countSessionSets(long sessionId) {
