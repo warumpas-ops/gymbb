@@ -411,6 +411,13 @@ public class WorkoutActivity extends Activity {
         int durationSec = (int) ((System.currentTimeMillis() - startTimeMs) / 1000);
         db.finalizeSession(sessionId, durationSec);
 
+        // Silently auto-backup to /sdcard/GymBB
+        new Thread(new Runnable() {
+            public void run() {
+                BackupHelper.exportDatabase(WorkoutActivity.this);
+            }
+        }).start();
+
         int totalSets = db.countSessionSets(sessionId);
         int totalEx = db.countDistinctExercisesInSession(sessionId);
         int mins = durationSec / 60;

@@ -25,7 +25,9 @@
             android:textColor="#A8D8A8"
             android:textSize="18sp"
             android:typeface="monospace"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:background="@drawable/row_selector"
+            android:padding="4dp"/>
 
         <TextView
             android:id="@+id/tvDate"

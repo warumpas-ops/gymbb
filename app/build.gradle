@@ -9,8 +9,8 @@ android {
         applicationId 'com.gymbb.app'
         minSdkVersion 14
         targetSdkVersion 18
-        versionCode 5
-        versionName '1.4.0'
+        versionCode 6
+        versionName '1.4.1'
     }
 
     compileOptions {

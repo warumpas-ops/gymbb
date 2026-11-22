@@ -1,11 +1,14 @@
 package com.gymbb.app;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -16,7 +19,7 @@ import java.util.Locale;
 public class MainActivity extends Activity {
 
     private DatabaseHelper db;
-    private TextView tvDayName, tvPlanName, tvPlanExercises, tvStartWorkout, tvRestDay, tvDate;
+    private TextView tvAppTitle, tvDayName, tvPlanName, tvPlanExercises, tvStartWorkout, tvRestDay, tvDate;
     private Plan todayPlan;
 
     @Override
@@ -27,12 +30,19 @@ public class MainActivity extends Activity {
         db = new DatabaseHelper(this);
         db.ensureDefaultsSeeded();
 
+        tvAppTitle = (TextView) findViewById(R.id.tvAppTitle);
         tvDayName = (TextView) findViewById(R.id.tvDayName);
         tvPlanName = (TextView) findViewById(R.id.tvPlanName);
         tvPlanExercises = (TextView) findViewById(R.id.tvPlanExercises);
         tvStartWorkout = (TextView) findViewById(R.id.tvStartWorkout);
         tvRestDay = (TextView) findViewById(R.id.tvRestDay);
         tvDate = (TextView) findViewById(R.id.tvDate);
+
+        tvAppTitle.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                showSystemMenu();
+            }
+        });
 
         ((TextView) findViewById(R.id.navPlans)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -59,6 +69,59 @@ public class MainActivity extends Activity {
                 }
             }
         });
+    }
+
+    private void showSystemMenu() {
+        String backupInfo = BackupHelper.getBackupInfo();
+        String[] options = new String[]{
+                "backup data now",
+                "restore data from backup (" + backupInfo + ")",
+                "cancel"
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle("gymbb system (v1.4.1)")
+                .setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0) {
+                            boolean ok = BackupHelper.exportDatabase(MainActivity.this);
+                            if (ok) {
+                                Toast.makeText(MainActivity.this, "✓ backup saved to /sdcard/GymBB", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(MainActivity.this, "backup failed: storage error", Toast.LENGTH_SHORT).show();
+                            }
+                        } else if (which == 1) {
+                            confirmRestore();
+                        }
+                    }
+                })
+                .show();
+    }
+
+    private void confirmRestore() {
+        String backupInfo = BackupHelper.getBackupInfo();
+        new AlertDialog.Builder(this)
+                .setTitle("restore data?")
+                .setMessage("backup: " + backupInfo + "\n\nwarning: this will replace current data with the backup file.")
+                .setPositiveButton("restore", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        boolean ok = BackupHelper.importDatabase(MainActivity.this);
+                        if (ok) {
+                            Toast.makeText(MainActivity.this, "✓ data restored successfully", Toast.LENGTH_LONG).show();
+                            try {
+                                db.close();
+                            } catch (Exception ignored) {}
+                            db = new DatabaseHelper(MainActivity.this);
+                            loadTodayInfo();
+                        } else {
+                            Toast.makeText(MainActivity.this, "restore failed: no valid backup file found", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton("cancel", null)
+                .show();
     }
 
     @Override
@@ -117,6 +180,9 @@ public class MainActivity extends Activity {
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_H) {
             startActivity(new Intent(this, HistoryActivity.class));
+            return true;
+        } else if (keyCode == KeyEvent.KEYCODE_B || keyCode == KeyEvent.KEYCODE_S) {
+            showSystemMenu();
             return true;
         }
         return super.onKeyDown(keyCode, event);
