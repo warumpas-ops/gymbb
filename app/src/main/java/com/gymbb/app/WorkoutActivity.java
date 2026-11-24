@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,12 +29,13 @@ public class WorkoutActivity extends Activity {
     // UI — Common Header & Controls
     private TextView tvPlanName, tvTimer, tvProgress;
     private TextView tvExerciseName, tvSetCounter, tvTargetHint;
+    private TextView btnStretchModeToggle;
     private TextView tvDone, tvSkip, tvQuit;
     private LinearLayout layoutRest, layoutActions, layoutComplete;
     private TextView tvRestTimer, tvCompleteSummary, tvFinish;
 
     // UI — Strength Logging
-    private LinearLayout layoutStrengthLogging;
+    private LinearLayout layoutStrengthLogging, layoutWeightRow;
     private TextView btnRepsMinus, tvRepsVal, btnRepsPlus;
     private TextView btnWeightMinus, tvWeightVal, btnWeightPlus;
     private int currentReps = 10;
@@ -46,6 +48,7 @@ public class WorkoutActivity extends Activity {
     private int stretchHoldSeconds = 30;
     private int stretchSecondsRemaining = 30;
     private boolean isStretchHoldRunning = false;
+    private boolean isStretchRepsMode = false;
     private Runnable stretchTimerRunnable;
 
     // Timers
@@ -80,6 +83,7 @@ public class WorkoutActivity extends Activity {
         tvExerciseName = (TextView) findViewById(R.id.tvExerciseName);
         tvSetCounter = (TextView) findViewById(R.id.tvSetCounter);
         tvTargetHint = (TextView) findViewById(R.id.tvTargetHint);
+        btnStretchModeToggle = (TextView) findViewById(R.id.btnStretchModeToggle);
         tvDone = (TextView) findViewById(R.id.tvDone);
         tvSkip = (TextView) findViewById(R.id.tvSkip);
         tvQuit = (TextView) findViewById(R.id.tvQuit);
@@ -92,6 +96,7 @@ public class WorkoutActivity extends Activity {
 
         // Bind strength logging views
         layoutStrengthLogging = (LinearLayout) findViewById(R.id.layoutStrengthLogging);
+        layoutWeightRow = (LinearLayout) findViewById(R.id.layoutWeightRow);
         btnRepsMinus = (TextView) findViewById(R.id.btnRepsMinus);
         tvRepsVal = (TextView) findViewById(R.id.tvRepsVal);
         btnRepsPlus = (TextView) findViewById(R.id.btnRepsPlus);
@@ -106,6 +111,12 @@ public class WorkoutActivity extends Activity {
         btnStretchMinus = (TextView) findViewById(R.id.btnStretchMinus);
         btnStretchToggleTimer = (TextView) findViewById(R.id.btnStretchToggleTimer);
         btnStretchPlus = (TextView) findViewById(R.id.btnStretchPlus);
+
+        btnStretchModeToggle.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                toggleStretchMode();
+            }
+        });
 
         tvPlanName.setText(plan.name);
 
@@ -215,20 +226,21 @@ public class WorkoutActivity extends Activity {
 
         if (pe.isStretch) {
             tvExerciseName.setText("[STRETCH] " + pe.exerciseName);
-            layoutStrengthLogging.setVisibility(View.GONE);
-            layoutStretchLogging.setVisibility(View.VISIBLE);
+            btnStretchModeToggle.setVisibility(View.VISIBLE);
 
             stretchHoldSeconds = pe.reps > 0 ? pe.reps : 30;
             stretchSecondsRemaining = stretchHoldSeconds;
-            tvTargetHint.setText("target: " + stretchHoldSeconds + "s hold");
-            tvStretchHoldLabel.setText("-- hold stretch --");
-            updateStretchUI();
-            startStretchTimer();
+            currentReps = pe.reps > 0 ? pe.reps : 10;
+            currentWeight = 0.0;
+
+            applyStretchModeUI();
         } else {
             tvExerciseName.setText(pe.exerciseName);
+            btnStretchModeToggle.setVisibility(View.GONE);
             stopStretchTimer();
             layoutStretchLogging.setVisibility(View.GONE);
             layoutStrengthLogging.setVisibility(View.VISIBLE);
+            if (layoutWeightRow != null) layoutWeightRow.setVisibility(View.VISIBLE);
 
             currentReps = pe.reps > 0 ? pe.reps : 10;
             currentWeight = pe.weight;
@@ -237,6 +249,34 @@ public class WorkoutActivity extends Activity {
                     : "bodyweight";
             tvTargetHint.setText("target: " + pe.reps + " reps @ " + targetWeightStr);
             updateStrengthUI();
+        }
+    }
+
+    private void toggleStretchMode() {
+        if (isResting) return;
+        isStretchRepsMode = !isStretchRepsMode;
+        applyStretchModeUI();
+    }
+
+    private void applyStretchModeUI() {
+        if (exerciseIndex >= exercises.size()) return;
+        PlanExercise pe = exercises.get(exerciseIndex);
+        if (isStretchRepsMode) {
+            btnStretchModeToggle.setText("[ MODE: REPS ]");
+            stopStretchTimer();
+            layoutStretchLogging.setVisibility(View.GONE);
+            layoutStrengthLogging.setVisibility(View.VISIBLE);
+            if (layoutWeightRow != null) layoutWeightRow.setVisibility(View.GONE);
+            tvTargetHint.setText("target: " + currentReps + " reps (press M for hold)");
+            updateStrengthUI();
+        } else {
+            btnStretchModeToggle.setText("[ MODE: HOLD ]");
+            layoutStrengthLogging.setVisibility(View.GONE);
+            layoutStretchLogging.setVisibility(View.VISIBLE);
+            tvTargetHint.setText("target: " + stretchHoldSeconds + "s hold (press M for reps)");
+            tvStretchHoldLabel.setText("-- hold stretch --");
+            updateStretchUI();
+            startStretchTimer();
         }
     }
 
@@ -325,11 +365,16 @@ public class WorkoutActivity extends Activity {
 
         // Log actual performed values
         if (pe.isStretch) {
-            db.insertSessionSet(sessionId, pe.exerciseId, pe.exerciseName,
-                    setIndex + 1, stretchHoldSeconds, 0.0, true);
+            if (isStretchRepsMode) {
+                db.insertSessionSet(sessionId, pe.exerciseId, pe.exerciseName,
+                        setIndex + 1, currentReps, 0.0, 2);
+            } else {
+                db.insertSessionSet(sessionId, pe.exerciseId, pe.exerciseName,
+                        setIndex + 1, stretchHoldSeconds, 0.0, 1);
+            }
         } else {
             db.insertSessionSet(sessionId, pe.exerciseId, pe.exerciseName,
-                    setIndex + 1, currentReps, currentWeight, false);
+                    setIndex + 1, currentReps, currentWeight, 0);
         }
 
         advanceSet(pe);
@@ -348,6 +393,7 @@ public class WorkoutActivity extends Activity {
             // move to next exercise
             exerciseIndex++;
             setIndex = 0;
+            isStretchRepsMode = false;
             if (exerciseIndex >= exercises.size()) {
                 showComplete();
             } else {
@@ -364,6 +410,7 @@ public class WorkoutActivity extends Activity {
             return;
         }
         isResting = true;
+        btnStretchModeToggle.setVisibility(View.GONE);
         layoutStrengthLogging.setVisibility(View.GONE);
         layoutStretchLogging.setVisibility(View.GONE);
         tvTargetHint.setVisibility(View.GONE);
@@ -426,6 +473,7 @@ public class WorkoutActivity extends Activity {
         tvCompleteSummary.setText(String.format(Locale.US,
                 "%d exercises  ·  %d sets  ·  %02d:%02d", totalEx, totalSets, mins, secs));
 
+        btnStretchModeToggle.setVisibility(View.GONE);
         findViewById(R.id.tvProgress).setVisibility(View.GONE);
         layoutActions.setVisibility(View.GONE);
         layoutComplete.setVisibility(View.VISIBLE);
@@ -485,6 +533,41 @@ public class WorkoutActivity extends Activity {
         super.onDestroy();
         stopWorkoutTimer();
         stopStretchTimer();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (event.getRepeatCount() == 0) {
+            if (keyCode == KeyEvent.KEYCODE_M) {
+                if (exercises != null && exerciseIndex < exercises.size()) {
+                    PlanExercise pe = exercises.get(exerciseIndex);
+                    if (pe.isStretch && !isResting && layoutComplete.getVisibility() != View.VISIBLE) {
+                        toggleStretchMode();
+                        return true;
+                    }
+                }
+            } else if (keyCode == KeyEvent.KEYCODE_SPACE || keyCode == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
+                if (layoutComplete.getVisibility() == View.VISIBLE) {
+                    tvFinish.performClick();
+                } else if (isResting) {
+                    endRest();
+                } else {
+                    completedSet();
+                }
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_S) {
+                if (!isResting && layoutComplete.getVisibility() != View.VISIBLE) {
+                    skipSet();
+                    return true;
+                }
+            } else if (keyCode == KeyEvent.KEYCODE_Q) {
+                if (layoutComplete.getVisibility() != View.VISIBLE) {
+                    confirmQuit();
+                    return true;
+                }
+            }
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override

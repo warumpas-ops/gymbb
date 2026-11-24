@@ -9,8 +9,19 @@ android {
         applicationId 'com.gymbb.app'
         minSdkVersion 14
         targetSdkVersion 18
-        versionCode 6
-        versionName '1.4.1'
+        versionCode 7
+        versionName '1.5.0'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
     }
 
     compileOptions {
@@ -19,8 +30,14 @@ android {
     }
 
     buildTypes {
-        release { minifyEnabled false }
-        debug   { debuggable true }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+        debug {
+            debuggable true
+            signingConfig signingConfigs.release
+        }
     }
 
     lint {

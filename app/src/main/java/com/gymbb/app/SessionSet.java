@@ -10,6 +10,7 @@ public class SessionSet {
     public double weight;
     public int completed;
     public boolean isStretch;
+    public int stretchType; // 0: strength, 1: static hold, 2: dynamic reps
     public long dateMs;
     public String planName;
 

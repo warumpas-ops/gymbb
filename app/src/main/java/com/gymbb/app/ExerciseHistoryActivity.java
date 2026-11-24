@@ -125,7 +125,11 @@ public class ExerciseHistoryActivity extends Activity {
                 for (int i = 0; i < sg.sets.size(); i++) {
                     if (i > 0) sb.append("  ·  ");
                     SessionSet s = sg.sets.get(i);
-                    if (s.isStretch) {
+                    if (s.stretchType == 1) {
+                        sb.append(s.reps).append("s hold");
+                    } else if (s.stretchType == 2) {
+                        sb.append(s.reps).append(" reps");
+                    } else if (s.isStretch) {
                         sb.append(s.reps).append("s hold");
                     } else {
                         String w = s.weight > 0 ? String.format(Locale.US, "%.1fkg", s.weight) : "bw";

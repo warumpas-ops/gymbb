@@ -82,7 +82,11 @@ public class SessionDetailActivity extends Activity {
 
                 tvSetNum.setText("  set " + current.setNumber + ":");
 
-                if (current.isStretch) {
+                if (current.stretchType == 1) {
+                    tvSetDetail.setText(current.reps + "s hold");
+                } else if (current.stretchType == 2) {
+                    tvSetDetail.setText(current.reps + " reps");
+                } else if (current.isStretch) {
                     tvSetDetail.setText(current.reps + "s hold");
                 } else {
                     String weightStr = current.weight > 0

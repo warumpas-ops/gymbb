@@ -396,7 +396,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // ==================== SESSION SETS ====================
 
     public long insertSessionSet(long sessionId, long exerciseId, String exerciseName,
-                                  int setNumber, int reps, double weight, boolean isStretch) {
+                                  int setNumber, int reps, double weight, int stretchType) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("session_id", sessionId);
@@ -406,13 +406,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put("reps", reps);
         cv.put("weight", weight);
         cv.put("completed", 1);
-        cv.put("is_stretch", isStretch ? 1 : 0);
+        cv.put("is_stretch", stretchType);
         return db.insert(TABLE_SESSION_SETS, null, cv);
     }
 
     public long insertSessionSet(long sessionId, long exerciseId, String exerciseName,
+                                  int setNumber, int reps, double weight, boolean isStretch) {
+        return insertSessionSet(sessionId, exerciseId, exerciseName, setNumber, reps, weight, isStretch ? 1 : 0);
+    }
+
+    public long insertSessionSet(long sessionId, long exerciseId, String exerciseName,
                                   int setNumber, int reps, double weight) {
-        return insertSessionSet(sessionId, exerciseId, exerciseName, setNumber, reps, weight, false);
+        return insertSessionSet(sessionId, exerciseId, exerciseName, setNumber, reps, weight, 0);
     }
 
     public List<SessionSet> getSessionSets(long sessionId) {
@@ -431,7 +436,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             s.weight = c.getDouble(c.getColumnIndex("weight"));
             s.completed = c.getInt(c.getColumnIndex("completed"));
             int strIdx = c.getColumnIndex("is_stretch");
-            s.isStretch = (strIdx >= 0 && c.getInt(strIdx) == 1);
+            int sType = (strIdx >= 0) ? c.getInt(strIdx) : 0;
+            s.stretchType = sType;
+            s.isStretch = (sType > 0);
             list.add(s);
         }
         c.close();
@@ -458,7 +465,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             s.weight = c.getDouble(c.getColumnIndex("weight"));
             s.completed = c.getInt(c.getColumnIndex("completed"));
             int strIdx = c.getColumnIndex("is_stretch");
-            s.isStretch = (strIdx >= 0 && c.getInt(strIdx) == 1);
+            int sType = (strIdx >= 0) ? c.getInt(strIdx) : 0;
+            s.stretchType = sType;
+            s.isStretch = (sType > 0);
             s.dateMs = c.getLong(c.getColumnIndex("date_ms"));
             s.planName = c.getString(c.getColumnIndex("plan_name"));
             list.add(s);

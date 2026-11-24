@@ -17,6 +17,14 @@ Designed with a sleek **terminal monospace aesthetic** matching [WhatsBB](https:
   - `E` — Open Exercise Library
   - `H` — Open History Log
   - `N` — Create New Plan / Exercise
+  - `M` — Toggle Stretch Mode (`[ MODE: HOLD ]` ⏱ vs `[ MODE: REPS ]` 🔢) during stretch exercises
+  - `Space` / `Enter` — Mark set done / Skip rest countdown
+  - `S` — Skip active set
+  - `Q` — Prompt quit workout
+- **Static & Dynamic Stretch Modes**:
+  - Seamless in-workout mode toggle between **Hold Mode** (countdown timer with `[-]` and `[+]` hold adjusters) and **Reps Mode** (clean repetition stepper with weight hidden for bodyweight movement).
+  - Tap the amber toggle pill or press <kbd>M</kbd> to switch modes at any time.
+  - Precise logs: Static holds record as `Xs hold`, dynamic stretches record as `X reps`, and strength exercises record as `X reps @ weight kg`.
 - **100% Custom Exercise Creation (No Forced Predefined List)**:
   - You write your own exercises! No cluttered pre-seeded lists.
   - When building or editing a plan, tap `[+ exercise]` and directly type the name of whatever exercise you want.
