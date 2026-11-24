@@ -149,6 +149,40 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="12dp"/>
 
+            <!-- Stretch mode toggle (only shown for stretches) -->
+            <LinearLayout
+                android:id="@+id/layoutStretchModeToggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/btnPlanStretchHold"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="[hold]"
+                    android:textColor="#0D0F11"
+                    android:textSize="13sp"
+                    android:typeface="monospace"
+                    android:background="#A8D8A8"/>
+
+                <TextView
+                    android:id="@+id/btnPlanStretchReps"
+                    android:layout_width="0dp"
+                    android:layout_height="36dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="[reps]"
+                    android:textColor="#A8D8A8"
+                    android:textSize="13sp"
+                    android:typeface="monospace"
+                    android:background="#1A1C20"/>
+            </LinearLayout>
+
             <!-- Reps -->
             <TextView
                 android:id="@+id/tvRepsLabel"

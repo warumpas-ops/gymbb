@@ -233,6 +233,9 @@ public class WorkoutActivity extends Activity {
             currentReps = pe.reps > 0 ? pe.reps : 10;
             currentWeight = 0.0;
 
+            // pe.weight == -1 means this stretch was planned as reps mode
+            isStretchRepsMode = (pe.weight < 0);
+
             applyStretchModeUI();
         } else {
             tvExerciseName.setText(pe.exerciseName);

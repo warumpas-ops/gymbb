@@ -17,7 +17,12 @@ public class PlanExercise {
 
     public String getDetailText() {
         if (isStretch) {
-            return sets + "x" + reps + "s hold  " + restSeconds + "s rest";
+            if (weight < 0) {
+                // reps mode
+                return sets + "x" + reps + " reps  " + restSeconds + "s rest";
+            } else {
+                return sets + "x" + reps + "s hold  " + restSeconds + "s rest";
+            }
         }
         String w = weight > 0
                 ? String.format("%.1fkg", weight)

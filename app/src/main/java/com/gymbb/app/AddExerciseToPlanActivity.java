@@ -18,8 +18,11 @@ public class AddExerciseToPlanActivity extends Activity {
     private DatabaseHelper db;
     private long planId;
     private boolean isStretch;
+    private boolean stretchIsRepsMode = false;
 
     private TextView tvTitle, tvRepsLabel;
+    private TextView btnPlanStretchHold, btnPlanStretchReps;
+    private LinearLayout layoutStretchModeToggle;
     private AutoCompleteTextView etExerciseName;
     private EditText etMuscleGroup, etSets, etReps, etWeight, etRest;
     private LinearLayout layoutWeightSection;
@@ -35,6 +38,9 @@ public class AddExerciseToPlanActivity extends Activity {
 
         tvTitle = (TextView) findViewById(R.id.tvTitle);
         tvRepsLabel = (TextView) findViewById(R.id.tvRepsLabel);
+        btnPlanStretchHold = (TextView) findViewById(R.id.btnPlanStretchHold);
+        btnPlanStretchReps = (TextView) findViewById(R.id.btnPlanStretchReps);
+        layoutStretchModeToggle = (LinearLayout) findViewById(R.id.layoutStretchModeToggle);
         etExerciseName = (AutoCompleteTextView) findViewById(R.id.etExerciseName);
         etMuscleGroup = (EditText) findViewById(R.id.etMuscleGroup);
         etSets = (EditText) findViewById(R.id.etSets);
@@ -52,6 +58,20 @@ public class AddExerciseToPlanActivity extends Activity {
             etReps.setText("30");
             etRest.setText("15");
             if (layoutWeightSection != null) layoutWeightSection.setVisibility(View.GONE);
+            if (layoutStretchModeToggle != null) layoutStretchModeToggle.setVisibility(View.VISIBLE);
+
+            btnPlanStretchHold.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    stretchIsRepsMode = false;
+                    updateStretchModeButtons();
+                }
+            });
+            btnPlanStretchReps.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    stretchIsRepsMode = true;
+                    updateStretchModeButtons();
+                }
+            });
         }
 
         // Auto-complete suggestions matching type
@@ -78,6 +98,24 @@ public class AddExerciseToPlanActivity extends Activity {
         });
     }
 
+    private void updateStretchModeButtons() {
+        if (stretchIsRepsMode) {
+            btnPlanStretchHold.setTextColor(0xFFA8D8A8);
+            btnPlanStretchHold.setBackgroundColor(0xFF1A1C20);
+            btnPlanStretchReps.setTextColor(0xFF0D0F11);
+            btnPlanStretchReps.setBackgroundColor(0xFFA8D8A8);
+            tvRepsLabel.setText("reps");
+            etReps.setText("10");
+        } else {
+            btnPlanStretchHold.setTextColor(0xFF0D0F11);
+            btnPlanStretchHold.setBackgroundColor(0xFFA8D8A8);
+            btnPlanStretchReps.setTextColor(0xFFA8D8A8);
+            btnPlanStretchReps.setBackgroundColor(0xFF1A1C20);
+            tvRepsLabel.setText("hold duration (seconds)");
+            etReps.setText("30");
+        }
+    }
+
     private void addExercise() {
         String name = etExerciseName.getText().toString().trim();
         if (name.isEmpty()) {
@@ -88,7 +126,8 @@ public class AddExerciseToPlanActivity extends Activity {
         String muscle = etMuscleGroup.getText().toString().trim();
         int sets = parseIntSafe(etSets.getText().toString(), isStretch ? 2 : 3);
         int reps = parseIntSafe(etReps.getText().toString(), isStretch ? 30 : 10);
-        double weight = isStretch ? 0 : parseDoubleSafe(etWeight.getText().toString(), 0);
+        // For stretches: weight=-1 means reps mode, weight=0 means hold mode
+        double weight = isStretch ? (stretchIsRepsMode ? -1.0 : 0.0) : parseDoubleSafe(etWeight.getText().toString(), 0);
         int rest = parseIntSafe(etRest.getText().toString(), isStretch ? 15 : 60);
 
         long exerciseId = db.getOrCreateExercise(name, muscle, isStretch);
