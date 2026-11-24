@@ -1,12 +1,16 @@
 package com.gymbb.app;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,7 +37,70 @@ public class HistoryActivity extends Activity {
             public void onClick(View v) { finish(); }
         });
 
+        TextView btnBackup = (TextView) findViewById(R.id.btnBackup);
+        if (btnBackup != null) {
+            btnBackup.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    showBackupMenu();
+                }
+            });
+        }
+
         loadHistory();
+    }
+
+    private void showBackupMenu() {
+        String backupInfo = BackupHelper.getBackupInfo();
+        String[] options = new String[]{
+                "save backup now (/sdcard/GymBB)",
+                "restore data from backup (" + backupInfo + ")",
+                "cancel"
+        };
+
+        new AlertDialog.Builder(this)
+                .setTitle("gymbb data & backup")
+                .setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0) {
+                            boolean ok = BackupHelper.exportDatabase(HistoryActivity.this);
+                            if (ok) {
+                                String info = BackupHelper.getBackupInfo();
+                                Toast.makeText(HistoryActivity.this, "✓ backup saved: " + info + "\nlocation: /sdcard/GymBB/gymbb_backup.db", Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(HistoryActivity.this, "backup failed: storage permission error", Toast.LENGTH_SHORT).show();
+                            }
+                        } else if (which == 1) {
+                            confirmRestore();
+                        }
+                    }
+                })
+                .show();
+    }
+
+    private void confirmRestore() {
+        String backupInfo = BackupHelper.getBackupInfo();
+        new AlertDialog.Builder(this)
+                .setTitle("restore all gym data?")
+                .setMessage("backup file: " + backupInfo + "\n\nwarning: this will restore all your saved plans, custom exercises, and workout history from the SD card.")
+                .setPositiveButton("restore", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        boolean ok = BackupHelper.importDatabase(HistoryActivity.this);
+                        if (ok) {
+                            Toast.makeText(HistoryActivity.this, "✓ all data restored successfully", Toast.LENGTH_LONG).show();
+                            try {
+                                db.close();
+                            } catch (Exception ignored) {}
+                            db = new DatabaseHelper(HistoryActivity.this);
+                            loadHistory();
+                        } else {
+                            Toast.makeText(HistoryActivity.this, "restore failed: no backup found at /sdcard/GymBB", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton("cancel", null)
+                .show();
     }
 
     private void loadHistory() {
@@ -85,5 +152,14 @@ public class HistoryActivity extends Activity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_B) {
+            showBackupMenu();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

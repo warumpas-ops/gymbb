@@ -30,6 +30,20 @@
             android:padding="4dp"/>
 
         <TextView
+            android:id="@+id/btnBackup"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:text="[backup]"
+            android:textColor="#F59E0B"
+            android:textSize="12sp"
+            android:typeface="monospace"
+            android:gravity="center"
+            android:background="@drawable/row_selector"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:layout_marginRight="8dp"/>
+
+        <TextView
             android:id="@+id/tvDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

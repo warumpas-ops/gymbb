@@ -38,6 +38,15 @@ public class MainActivity extends Activity {
         tvRestDay = (TextView) findViewById(R.id.tvRestDay);
         tvDate = (TextView) findViewById(R.id.tvDate);
 
+        TextView btnBackup = (TextView) findViewById(R.id.btnBackup);
+        if (btnBackup != null) {
+            btnBackup.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    showSystemMenu();
+                }
+            });
+        }
+
         tvAppTitle.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 showSystemMenu();
@@ -74,22 +83,23 @@ public class MainActivity extends Activity {
     private void showSystemMenu() {
         String backupInfo = BackupHelper.getBackupInfo();
         String[] options = new String[]{
-                "backup data now",
+                "save backup now (/sdcard/GymBB)",
                 "restore data from backup (" + backupInfo + ")",
                 "cancel"
         };
 
         new AlertDialog.Builder(this)
-                .setTitle("gymbb system (v1.4.1)")
+                .setTitle("gymbb data & backup")
                 .setItems(options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == 0) {
                             boolean ok = BackupHelper.exportDatabase(MainActivity.this);
                             if (ok) {
-                                Toast.makeText(MainActivity.this, "✓ backup saved to /sdcard/GymBB", Toast.LENGTH_LONG).show();
+                                String info = BackupHelper.getBackupInfo();
+                                Toast.makeText(MainActivity.this, "✓ backup saved: " + info + "\nlocation: /sdcard/GymBB/gymbb_backup.db", Toast.LENGTH_LONG).show();
                             } else {
-                                Toast.makeText(MainActivity.this, "backup failed: storage error", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "backup failed: storage permission error", Toast.LENGTH_SHORT).show();
                             }
                         } else if (which == 1) {
                             confirmRestore();
@@ -102,21 +112,21 @@ public class MainActivity extends Activity {
     private void confirmRestore() {
         String backupInfo = BackupHelper.getBackupInfo();
         new AlertDialog.Builder(this)
-                .setTitle("restore data?")
-                .setMessage("backup: " + backupInfo + "\n\nwarning: this will replace current data with the backup file.")
+                .setTitle("restore all gym data?")
+                .setMessage("backup file: " + backupInfo + "\n\nwarning: this will restore all your saved plans, custom exercises, and workout history from the SD card.")
                 .setPositiveButton("restore", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         boolean ok = BackupHelper.importDatabase(MainActivity.this);
                         if (ok) {
-                            Toast.makeText(MainActivity.this, "✓ data restored successfully", Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "✓ all data restored successfully", Toast.LENGTH_LONG).show();
                             try {
                                 db.close();
                             } catch (Exception ignored) {}
                             db = new DatabaseHelper(MainActivity.this);
                             loadTodayInfo();
                         } else {
-                            Toast.makeText(MainActivity.this, "restore failed: no valid backup file found", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "restore failed: no backup found at /sdcard/GymBB", Toast.LENGTH_SHORT).show();
                         }
                     }
                 })

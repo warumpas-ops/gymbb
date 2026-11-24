@@ -65,16 +65,29 @@ public class ExerciseHistoryActivity extends Activity {
         String muscle = (exercise.muscleGroup != null && !exercise.muscleGroup.isEmpty())
                 ? exercise.muscleGroup : "general";
 
+        String prStr = "--";
         if (exercise.isStretch) {
             int maxHold = db.getExerciseMaxHold(exerciseId);
-            tvPRValue.setText("LONGEST HOLD: " + (maxHold > 0 ? maxHold + "s" : "--"));
+            int maxReps = db.getExerciseMaxStretchReps(exerciseId);
+            if (maxHold > 0 && maxReps > 0) {
+                prStr = maxHold + "s hold  ·  " + maxReps + " reps";
+            } else if (maxHold > 0) {
+                prStr = maxHold + "s hold";
+            } else if (maxReps > 0) {
+                prStr = maxReps + " reps";
+            } else if (totalSessions > 0) {
+                int anyReps = db.getExerciseMaxReps(exerciseId);
+                prStr = anyReps > 0 ? anyReps + "s hold" : "--";
+            }
             tvStatsSummary.setText("Target: " + muscle + "  ·  " + totalSessions + " sessions logged");
         } else {
             double maxWeight = db.getExerciseMaxWeight(exerciseId);
-            String prStr = maxWeight > 0 ? String.format(Locale.US, "%.1f kg", maxWeight) : "bodyweight";
-            tvPRValue.setText("PERSONAL RECORD: " + (totalSessions > 0 ? prStr : "--"));
+            if (totalSessions > 0) {
+                prStr = maxWeight > 0 ? String.format(Locale.US, "%.1f kg", maxWeight) : "bodyweight";
+            }
             tvStatsSummary.setText("Muscle: " + muscle + "  ·  " + totalSessions + " sessions logged");
         }
+        tvPRValue.setText("PERSONAL RECORD: " + prStr);
 
         loadHistoryList();
     }

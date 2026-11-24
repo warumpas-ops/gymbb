@@ -12,7 +12,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "gymbb.db";
-    private static final int DB_VERSION = 4;
+    private static final int DB_VERSION = 5;
 
     // Table names
     static final String TABLE_EXERCISES = "exercises";
@@ -92,30 +92,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 {"Skull Crusher", "triceps", "0"},
                 {"Plank", "core", "0"},
                 {"Crunch", "core", "0"},
-                // Built-in starter stretches
-                {"Hamstring Stretch", "legs", "1"},
-                {"Quad Stretch", "legs", "1"},
-                {"Calf Stretch", "legs", "1"},
-                {"Hip Flexor Stretch", "hips", "1"},
+                // User's Stretches & Mobility (Curated List - No Duplicates)
                 {"Hip Flexor", "hips", "1"},
                 {"Sciatic Nerve Glide", "hamstrings", "1"},
                 {"Glute Bridges", "glutes", "1"},
                 {"Scapular Wall Slides", "upper back", "1"},
-                {"Chest Doorway Stretch", "chest", "1"},
                 {"Chest Doorway", "chest", "1"},
                 {"Thoracic Extension Over Towel", "upper back", "1"},
                 {"Sphinx Pose", "lower back", "1"},
                 {"Cobra Pose", "lower back", "1"},
-                {"Cobra Stretch", "back", "1"},
                 {"Chin Tucks", "neck", "1"},
                 {"Upper Trap Stretch", "neck", "1"},
                 {"Levator Scapulae Stretch", "neck", "1"},
                 {"Cat-Cow", "spine", "1"},
                 {"Thread the Needle", "upper back", "1"},
-                {"90/90 Hip Rotations", "hips", "1"},
-                {"Figure 4 Stretch", "glutes", "1"},
+                {"90/90 Hips Rotation", "hips", "1"},
+                {"Figure 4", "glutes", "1"},
+
+                // Standard baseline stretches
+                {"Hamstring Stretch", "legs", "1"},
+                {"Quad Stretch", "legs", "1"},
+                {"Calf Stretch", "legs", "1"},
                 {"Shoulder Stretch", "shoulders", "1"},
-                {"Chest Opener Stretch", "chest", "1"},
                 {"Child's Pose", "back", "1"}
         };
         for (String[] ex : defaults) {
@@ -133,9 +131,52 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    public void deduplicateExercises(SQLiteDatabase db) {
+        mergeExercises(db, "Hip Flexor", "Hip Flexor Stretch");
+        mergeExercises(db, "Chest Doorway", "Chest Doorway Stretch");
+        mergeExercises(db, "Chest Doorway", "Chest Opener Stretch");
+        mergeExercises(db, "Cobra Pose", "Cobra Stretch");
+        mergeExercises(db, "Figure 4", "Figure 4 Stretch");
+        mergeExercises(db, "90/90 Hips Rotation", "90/90 Hip Rotations");
+    }
+
+    private void mergeExercises(SQLiteDatabase db, String keepName, String removeName) {
+        try {
+            Cursor cKeep = db.query(TABLE_EXERCISES, new String[]{"id"}, "LOWER(name)=?",
+                    new String[]{keepName.trim().toLowerCase()}, null, null, null);
+            Cursor cRemove = db.query(TABLE_EXERCISES, new String[]{"id"}, "LOWER(name)=?",
+                    new String[]{removeName.trim().toLowerCase()}, null, null, null);
+
+            boolean hasKeep = cKeep.moveToFirst();
+            boolean hasRemove = cRemove.moveToFirst();
+
+            if (hasKeep && hasRemove) {
+                long keepId = cKeep.getLong(0);
+                long removeId = cRemove.getLong(0);
+                // Re-point plan_exercises
+                db.execSQL("UPDATE " + TABLE_PLAN_EXERCISES + " SET exercise_id=" + keepId + " WHERE exercise_id=" + removeId);
+                // Re-point session_sets
+                db.execSQL("UPDATE " + TABLE_SESSION_SETS + " SET exercise_id=" + keepId + ", exercise_name='" + keepName + "' WHERE exercise_id=" + removeId);
+                // Delete duplicate exercise
+                db.execSQL("DELETE FROM " + TABLE_EXERCISES + " WHERE id=" + removeId);
+            } else if (!hasKeep && hasRemove) {
+                ContentValues cv = new ContentValues();
+                cv.put("name", keepName);
+                db.update(TABLE_EXERCISES, cv, "LOWER(name)=?", new String[]{removeName.trim().toLowerCase()});
+                db.update(TABLE_SESSION_SETS, cv, "LOWER(exercise_name)=?", new String[]{removeName.trim().toLowerCase()});
+            }
+
+            cKeep.close();
+            cRemove.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void ensureDefaultsSeeded() {
         SQLiteDatabase db = getWritableDatabase();
         seedExercises(db);
+        deduplicateExercises(db);
     }
 
     @Override
@@ -162,6 +203,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         if (oldVersion < 4) {
             seedExercises(db);
+        }
+        if (oldVersion < 5) {
+            seedExercises(db);
+            deduplicateExercises(db);
         }
     }
 
@@ -506,6 +551,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor c = db.rawQuery("SELECT MAX(reps) FROM " + TABLE_SESSION_SETS +
                 " WHERE exercise_id=? AND completed=1 AND is_stretch=1", new String[]{String.valueOf(exerciseId)});
+        int max = 0;
+        if (c.moveToFirst() && !c.isNull(0)) max = c.getInt(0);
+        c.close();
+        return max;
+    }
+
+    public int getExerciseMaxStretchReps(long exerciseId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT MAX(reps) FROM " + TABLE_SESSION_SETS +
+                " WHERE exercise_id=? AND completed=1 AND is_stretch=2", new String[]{String.valueOf(exerciseId)});
+        int max = 0;
+        if (c.moveToFirst() && !c.isNull(0)) max = c.getInt(0);
+        c.close();
+        return max;
+    }
+
+    public int getExerciseMaxReps(long exerciseId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT MAX(reps) FROM " + TABLE_SESSION_SETS +
+                " WHERE exercise_id=? AND completed=1", new String[]{String.valueOf(exerciseId)});
         int max = 0;
         if (c.moveToFirst() && !c.isNull(0)) max = c.getInt(0);
         c.close();
