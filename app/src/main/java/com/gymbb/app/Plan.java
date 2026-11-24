@@ -4,6 +4,7 @@ public class Plan {
     public long id;
     public String name;
     public String days; // comma-separated: "MON,WED,FRI"
+    public boolean isGroup;
 
     public Plan() {}
 

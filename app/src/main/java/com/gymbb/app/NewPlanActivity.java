@@ -1,10 +1,12 @@
 package com.gymbb.app;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,6 +16,7 @@ import java.util.List;
 public class NewPlanActivity extends Activity {
 
     private DatabaseHelper db;
+    private boolean isGroup = false;
     private EditText etPlanName;
     private CheckBox cbMon, cbTue, cbWed, cbThu, cbFri, cbSat, cbSun;
 
@@ -23,6 +26,7 @@ public class NewPlanActivity extends Activity {
         setContentView(R.layout.activity_new_plan);
 
         db = new DatabaseHelper(this);
+        isGroup = getIntent().getBooleanExtra("is_group", false);
 
         etPlanName = (EditText) findViewById(R.id.etPlanName);
         cbMon = (CheckBox) findViewById(R.id.cbMon);
@@ -32,6 +36,13 @@ public class NewPlanActivity extends Activity {
         cbFri = (CheckBox) findViewById(R.id.cbFri);
         cbSat = (CheckBox) findViewById(R.id.cbSat);
         cbSun = (CheckBox) findViewById(R.id.cbSun);
+
+        if (isGroup) {
+            ((TextView) findViewById(R.id.tvTitle)).setText("new group");
+            ((TextView) findViewById(R.id.tvNameLabel)).setText("group name");
+            etPlanName.setHint("e.g. morning routine");
+            ((LinearLayout) findViewById(R.id.layoutDaysSection)).setVisibility(View.GONE);
+        }
 
         ((TextView) findViewById(R.id.tvCancel)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) { finish(); }
@@ -45,7 +56,16 @@ public class NewPlanActivity extends Activity {
     private void savePlan() {
         String name = etPlanName.getText().toString().trim();
         if (name.isEmpty()) {
-            Toast.makeText(this, "enter a plan name", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, isGroup ? "enter a group name" : "enter a plan name", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (isGroup) {
+            long newId = db.insertPlan(name, "", true);
+            Intent i = new Intent(this, PlanDetailActivity.class);
+            i.putExtra("plan_id", newId);
+            startActivity(i);
+            finish();
             return;
         }
 

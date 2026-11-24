@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -63,6 +64,12 @@ public class PlanDetailActivity extends Activity {
             }
         });
 
+        ((TextView) findViewById(R.id.tvAddGroup)).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                showGroupPicker();
+            }
+        });
+
         ((TextView) findViewById(R.id.tvStartWorkout)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (exercises != null && !exercises.isEmpty()) {
@@ -84,29 +91,53 @@ public class PlanDetailActivity extends Activity {
         plan = db.getPlanById(planId);
         if (plan == null) { finish(); return; }
 
-        tvPlanName.setText(plan.name);
-
-        // Build day strip
         LinearLayout layoutDays = (LinearLayout) findViewById(R.id.layoutDays);
-        layoutDays.removeAllViews();
-        String[] planDays = plan.days != null ? plan.days.split(",") : new String[0];
-        for (int i = 0; i < DAY_CODES.length; i++) {
-            final String code = DAY_CODES[i];
-            boolean active = false;
-            for (String d : planDays) {
-                if (d.trim().equalsIgnoreCase(code)) { active = true; break; }
+        TextView tvGroupSubtitle = (TextView) findViewById(R.id.tvGroupSubtitle);
+        View tvAddGroup = findViewById(R.id.tvAddGroup);
+        View divGroup = findViewById(R.id.divGroup);
+        View tvStartWorkout = findViewById(R.id.tvStartWorkout);
+        View divStart = findViewById(R.id.divStart);
+
+        if (plan.isGroup) {
+            tvPlanName.setText("[GROUP] " + plan.name);
+            tvPlanName.setTextColor(0xFFA8D8A8);
+            layoutDays.setVisibility(View.GONE);
+            tvGroupSubtitle.setVisibility(View.VISIBLE);
+            tvAddGroup.setVisibility(View.GONE);
+            divGroup.setVisibility(View.GONE);
+            tvStartWorkout.setVisibility(View.GONE);
+            divStart.setVisibility(View.GONE);
+        } else {
+            tvPlanName.setText(plan.name);
+            tvPlanName.setTextColor(0xFFE0E2E6);
+            layoutDays.setVisibility(View.VISIBLE);
+            tvGroupSubtitle.setVisibility(View.GONE);
+            tvAddGroup.setVisibility(View.VISIBLE);
+            divGroup.setVisibility(View.VISIBLE);
+            tvStartWorkout.setVisibility(View.VISIBLE);
+            divStart.setVisibility(View.VISIBLE);
+
+            // Build day strip
+            layoutDays.removeAllViews();
+            String[] planDays = plan.days != null ? plan.days.split(",") : new String[0];
+            for (int i = 0; i < DAY_CODES.length; i++) {
+                final String code = DAY_CODES[i];
+                boolean active = false;
+                for (String d : planDays) {
+                    if (d.trim().equalsIgnoreCase(code)) { active = true; break; }
+                }
+                TextView tv = new TextView(this);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
+                        LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+                tv.setLayoutParams(lp);
+                tv.setText(DAY_SHORT[i]);
+                tv.setTextColor(active ? 0xFFA8D8A8 : 0xFF555A64);
+                tv.setTypeface(android.graphics.Typeface.MONOSPACE);
+                tv.setTextSize(13f);
+                tv.setGravity(android.view.Gravity.CENTER);
+                if (active) tv.setTextColor(0xFFA8D8A8);
+                layoutDays.addView(tv);
             }
-            TextView tv = new TextView(this);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-            tv.setLayoutParams(lp);
-            tv.setText(DAY_SHORT[i]);
-            tv.setTextColor(active ? 0xFFA8D8A8 : 0xFF555A64);
-            tv.setTypeface(android.graphics.Typeface.MONOSPACE);
-            tv.setTextSize(13f);
-            tv.setGravity(android.view.Gravity.CENTER);
-            if (active) tv.setTextColor(0xFFA8D8A8);
-            layoutDays.addView(tv);
         }
 
         exercises = db.getPlanExercises(planId);
@@ -130,9 +161,39 @@ public class PlanDetailActivity extends Activity {
         });
     }
 
+    private void showGroupPicker() {
+        final List<Plan> groups = db.getAllGroups();
+        if (groups.isEmpty()) {
+            Toast.makeText(this, "no groups yet — create one under plans > groups", Toast.LENGTH_LONG).show();
+            return;
+        }
+        String[] labels = new String[groups.size()];
+        for (int i = 0; i < groups.size(); i++) {
+            Plan g = groups.get(i);
+            int count = db.getPlanExerciseCount(g.id);
+            labels[i] = g.name + " (" + count + (count == 1 ? " item)" : " items)");
+        }
+        new AlertDialog.Builder(this)
+                .setTitle("add group to " + plan.name)
+                .setItems(labels, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Plan chosen = groups.get(which);
+                        int added = db.copyGroupToPlan(chosen.id, planId);
+                        if (added == 0) {
+                            Toast.makeText(PlanDetailActivity.this, "\"" + chosen.name + "\" is empty", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(PlanDetailActivity.this, "added " + added + " from " + chosen.name, Toast.LENGTH_SHORT).show();
+                            loadPlan();
+                        }
+                    }
+                })
+                .setNegativeButton("cancel", null)
+                .show();
+    }
+
     private void confirmDelete() {
         new AlertDialog.Builder(this)
-                .setTitle("delete plan?")
+                .setTitle(plan != null && plan.isGroup ? "delete group?" : "delete plan?")
                 .setMessage("\"" + plan.name + "\" will be removed.")
                 .setPositiveButton("delete", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {

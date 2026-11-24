@@ -12,7 +12,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "gymbb.db";
-    private static final int DB_VERSION = 5;
+    private static final int DB_VERSION = 6;
 
     // Table names
     static final String TABLE_EXERCISES = "exercises";
@@ -37,7 +37,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE " + TABLE_PLANS + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "name TEXT NOT NULL," +
-                "days TEXT)");
+                "days TEXT," +
+                "is_group INTEGER DEFAULT 0)");
 
         db.execSQL("CREATE TABLE " + TABLE_PLAN_EXERCISES + " (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -208,6 +209,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             seedExercises(db);
             deduplicateExercises(db);
         }
+        if (oldVersion < 6) {
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_PLANS + " ADD COLUMN is_group INTEGER DEFAULT 0");
+            } catch (Exception e) {}
+        }
     }
 
     // ==================== EXERCISES ====================
@@ -291,26 +297,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_EXERCISES, "id=?", new String[]{String.valueOf(id)});
     }
 
-    // ==================== PLANS ====================
+    // ==================== PLANS & GROUPS ====================
 
-    public long insertPlan(String name, String days) {
+    public long insertPlan(String name, String days, boolean isGroup) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues cv = new ContentValues();
         cv.put("name", name.trim());
-        cv.put("days", days);
+        cv.put("days", isGroup ? "" : days);
+        cv.put("is_group", isGroup ? 1 : 0);
         return db.insert(TABLE_PLANS, null, cv);
+    }
+
+    public long insertPlan(String name, String days) {
+        return insertPlan(name, days, false);
+    }
+
+    private Plan cursorToPlan(Cursor c) {
+        Plan p = new Plan();
+        p.id = c.getLong(c.getColumnIndex("id"));
+        p.name = c.getString(c.getColumnIndex("name"));
+        p.days = c.getString(c.getColumnIndex("days"));
+        int grpIdx = c.getColumnIndex("is_group");
+        p.isGroup = (grpIdx >= 0 && c.getInt(grpIdx) == 1);
+        return p;
     }
 
     public List<Plan> getAllPlans() {
         List<Plan> list = new ArrayList<Plan>();
         SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.query(TABLE_PLANS, null, null, null, null, null, "name ASC");
+        Cursor c = db.query(TABLE_PLANS, null, "is_group=0 OR is_group IS NULL", null, null, null, "name ASC");
         while (c.moveToNext()) {
-            Plan p = new Plan();
-            p.id = c.getLong(c.getColumnIndex("id"));
-            p.name = c.getString(c.getColumnIndex("name"));
-            p.days = c.getString(c.getColumnIndex("days"));
-            list.add(p);
+            list.add(cursorToPlan(c));
+        }
+        c.close();
+        return list;
+    }
+
+    public List<Plan> getAllGroups() {
+        List<Plan> list = new ArrayList<Plan>();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.query(TABLE_PLANS, null, "is_group=1", null, null, null, "name ASC");
+        while (c.moveToNext()) {
+            list.add(cursorToPlan(c));
         }
         c.close();
         return list;
@@ -320,15 +348,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor c = db.query(TABLE_PLANS, null, "id=?", new String[]{String.valueOf(id)}, null, null, null);
         if (c.moveToFirst()) {
-            Plan p = new Plan();
-            p.id = c.getLong(c.getColumnIndex("id"));
-            p.name = c.getString(c.getColumnIndex("name"));
-            p.days = c.getString(c.getColumnIndex("days"));
+            Plan p = cursorToPlan(c);
             c.close();
             return p;
         }
         c.close();
         return null;
+    }
+
+    public int getPlanExerciseCount(long planId) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_PLAN_EXERCISES + " WHERE plan_id=?",
+                new String[]{String.valueOf(planId)});
+        int count = 0;
+        if (c.moveToFirst()) count = c.getInt(0);
+        c.close();
+        return count;
+    }
+
+    public int copyGroupToPlan(long groupId, long targetPlanId) {
+        List<PlanExercise> items = getPlanExercises(groupId);
+        for (PlanExercise pe : items) {
+            insertPlanExercise(targetPlanId, pe.exerciseId, pe.sets, pe.reps, pe.weight, pe.restSeconds, pe.isStretch);
+        }
+        return items.size();
     }
 
     public void deletePlan(long id) {
