@@ -12,7 +12,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "gymbb.db";
-    private static final int DB_VERSION = 3;
+    private static final int DB_VERSION = 4;
 
     // Table names
     static final String TABLE_EXERCISES = "exercises";
@@ -96,33 +96,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 {"Hamstring Stretch", "legs", "1"},
                 {"Quad Stretch", "legs", "1"},
                 {"Calf Stretch", "legs", "1"},
-                {"Hip Flexor Stretch", "legs", "1"},
+                {"Hip Flexor Stretch", "hips", "1"},
+                {"Hip Flexor", "hips", "1"},
+                {"Sciatic Nerve Glide", "hamstrings", "1"},
+                {"Glute Bridges", "glutes", "1"},
+                {"Scapular Wall Slides", "upper back", "1"},
+                {"Chest Doorway Stretch", "chest", "1"},
+                {"Chest Doorway", "chest", "1"},
+                {"Thoracic Extension Over Towel", "upper back", "1"},
+                {"Sphinx Pose", "lower back", "1"},
+                {"Cobra Pose", "lower back", "1"},
+                {"Cobra Stretch", "back", "1"},
+                {"Chin Tucks", "neck", "1"},
+                {"Upper Trap Stretch", "neck", "1"},
+                {"Levator Scapulae Stretch", "neck", "1"},
+                {"Cat-Cow", "spine", "1"},
+                {"Thread the Needle", "upper back", "1"},
+                {"90/90 Hip Rotations", "hips", "1"},
+                {"Figure 4 Stretch", "glutes", "1"},
                 {"Shoulder Stretch", "shoulders", "1"},
                 {"Chest Opener Stretch", "chest", "1"},
-                {"Cobra Stretch", "back", "1"},
                 {"Child's Pose", "back", "1"}
         };
         for (String[] ex : defaults) {
-            ContentValues cv = new ContentValues();
-            cv.put("name", ex[0]);
-            cv.put("muscle_group", ex[1]);
-            cv.put("notes", "");
-            cv.put("is_stretch", Integer.parseInt(ex[2]));
-            db.insertWithOnConflict(TABLE_EXERCISES, null, cv, SQLiteDatabase.CONFLICT_IGNORE);
+            Cursor c = db.query(TABLE_EXERCISES, new String[]{"id"}, "LOWER(name)=?",
+                    new String[]{ex[0].trim().toLowerCase()}, null, null, null);
+            if (!c.moveToFirst()) {
+                ContentValues cv = new ContentValues();
+                cv.put("name", ex[0]);
+                cv.put("muscle_group", ex[1]);
+                cv.put("notes", "");
+                cv.put("is_stretch", Integer.parseInt(ex[2]));
+                db.insert(TABLE_EXERCISES, null, cv);
+            }
+            c.close();
         }
     }
 
     public void ensureDefaultsSeeded() {
         SQLiteDatabase db = getWritableDatabase();
-        Cursor c = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_EXERCISES, null);
-        boolean isEmpty = true;
-        if (c.moveToFirst()) {
-            isEmpty = c.getInt(0) == 0;
-        }
-        c.close();
-        if (isEmpty) {
-            seedExercises(db);
-        }
+        seedExercises(db);
     }
 
     @Override
@@ -146,6 +159,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             try {
                 db.execSQL("ALTER TABLE " + TABLE_SESSION_SETS + " ADD COLUMN is_stretch INTEGER DEFAULT 0");
             } catch (Exception e) {}
+        }
+        if (oldVersion < 4) {
+            seedExercises(db);
         }
     }
 

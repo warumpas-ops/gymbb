@@ -9,8 +9,8 @@ android {
         applicationId 'com.gymbb.app'
         minSdkVersion 14
         targetSdkVersion 18
-        versionCode 7
-        versionName '1.5.0'
+        versionCode 8
+        versionName '1.5.1'
     }
 
     signingConfigs {
